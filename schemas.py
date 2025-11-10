@@ -1,48 +1,53 @@
 """
-Database Schemas
+Database Schemas for University Website
 
-Define your MongoDB collection schemas here using Pydantic models.
-These schemas are used for data validation in your application.
-
-Each Pydantic model represents a collection in your database.
-Model name is converted to lowercase for the collection name:
-- User -> "user" collection
-- Product -> "product" collection
-- BlogPost -> "blogs" collection
+Each Pydantic model below maps to a MongoDB collection (lowercased class name).
+Use these models for validation when creating documents via the API.
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, EmailStr
+from typing import Optional, List
+from datetime import datetime
 
-# Example schemas (replace with your own):
+class Faculty(BaseModel):
+    name: str = Field(..., description="Faculty name, e.g., 'Faculty of Engineering'")
+    description: Optional[str] = Field(None, description="Short description of the faculty")
+    dean: Optional[str] = Field(None, description="Name of the dean")
+    website: Optional[str] = Field(None, description="Public URL for the faculty")
+    featured_image: Optional[str] = Field(None, description="Hero/cover image URL")
 
+class Program(BaseModel):
+    title: str = Field(..., description="Program title, e.g., 'Computer Science (BSc)'")
+    level: str = Field(..., description="Program level, e.g., 'Undergraduate', 'Postgraduate'")
+    faculty_id: Optional[str] = Field(None, description="Related faculty id as string")
+    duration_years: Optional[int] = Field(None, ge=1, le=8, description="Typical duration in years")
+    overview: Optional[str] = Field(None, description="Short overview of the program")
+
+class News(BaseModel):
+    title: str = Field(..., description="News title")
+    content: str = Field(..., description="News content or summary")
+    author: Optional[str] = Field(None, description="Author name")
+    published_at: Optional[datetime] = Field(None, description="Publish datetime")
+    cover_image: Optional[str] = Field(None, description="Cover image URL")
+
+class Inquiry(BaseModel):
+    full_name: str = Field(..., description="Prospective student full name")
+    email: EmailStr = Field(..., description="Email address")
+    phone: Optional[str] = Field(None, description="Phone number")
+    interest_program: Optional[str] = Field(None, description="Program of interest")
+    message: Optional[str] = Field(None, description="Additional message")
+
+# Existing example schemas can remain for reference
 class User(BaseModel):
-    """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+    name: str
+    email: str
+    address: str
+    age: Optional[int] = None
+    is_active: bool = True
 
 class Product(BaseModel):
-    """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
-
-# Add your own schemas here:
-# --------------------------------------------------
-
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+    title: str
+    description: Optional[str] = None
+    price: float
+    category: str
+    in_stock: bool = True
